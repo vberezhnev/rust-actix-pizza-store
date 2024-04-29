@@ -1,0 +1,65 @@
+* Start the Database
+#+BEGIN_SRC bash
+  surreal start file:pizzashop.db --user root --password root
+#+END_SRC
+* Variables
+#+NAME: host
+: http://localhost:8080
+* GET requests
+** Pizzas
+#+BEGIN_SRC http :var host=host :pretty
+  GET ${host}/pizzas
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+[
+  {
+    "uuid": "53b6436b30d24a418ff67c14ce835d03",
+    "pizza_name": "chmeppironi"
+  },
+  {
+    "uuid": "8e2ffc9f46a149b49a17d84952054a8b",
+    "pizza_name": "hmeppironi"
+  },
+  {
+    "uuid": "ee93af5637bc4636ae7700855071f7ac",
+    "pizza_name": "nothing"
+  }
+]
+#+end_example
+* POST requests
+** Buy pizza
+#+BEGIN_SRC http :var host=host :pretty
+  POST ${host}/buypizza
+  Content-Type: application/json
+
+  {"pizza_name": "nothing"}
+#+end_src
+
+#+RESULTS:
+: {
+:   "uuid": "ee93af5637bc4636ae7700855071f7ac",
+:   "pizza_name": "nothing"
+: }
+* PATCH requests
+** Update pizza (mark as sold)
+#+BEGIN_SRC http :var host=host :pretty
+  PATCH http://localhost:8080/updatepizza/0dcb73689ceb4b9fbf07d45ed4499f09
+#+END_SRC
+
+#+RESULTS:
+: {
+:   "uuid": "0dcb73689ceb4b9fbf07d45ed4499f09",
+:   "pizza_name": "sold"
+: }
+* DELETE requests
+#+BEGIN_SRC http :var host=host :pretty
+  DELETE ${host}/deletepizza/01d405f7d3a247248400eddf157a9d72
+#+END_SRC
+
+#+RESULTS:
+: {
+:   "uuid": "01d405f7d3a247248400eddf157a9d72",
+:   "pizza_name": "sold"
+: }

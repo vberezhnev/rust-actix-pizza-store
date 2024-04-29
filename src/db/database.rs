@@ -78,4 +78,30 @@ impl Database {
             Err(_) => None,
         }
     }
+
+    pub async fn delete_pizza(&self, uuid: String) -> Option<Pizza> {
+        let find_pizza: Result<Option<Pizza>, Error> = self.client.select(("pizza", &uuid)).await;
+
+        match find_pizza {
+            Ok(found) => {
+                match found {
+                    Some(_found_pizza) => {
+                        // If pizza was found
+                        let updated_pizza: Result<Option<Pizza>, Error> = self
+                            .client
+                            // .update(("pizza", &uuid))
+                            .delete(("pizza", &uuid))
+                            .await;
+
+                        match updated_pizza {
+                            Ok(updated) => updated,
+                            Err(_) => None,
+                        }
+                    }
+                    None => None,
+                }
+            }
+            Err(_) => None,
+        }
+    }
 }

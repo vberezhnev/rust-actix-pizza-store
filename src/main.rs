@@ -5,7 +5,7 @@ mod models;
 use crate::db::Database;
 use crate::error::PizzaError;
 use crate::models::{BuyPizzaRequest, Pizza, UpdatePizzaURL};
-use actix_web::{get, patch, post, web::Data, web::Json, web::Path, App, HttpServer};
+use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, App, HttpServer};
 use uuid::Uuid;
 use validator::Validate;
 
@@ -57,6 +57,20 @@ async fn update_pizza(
     }
 }
 
+#[delete("/deletepizza/{uuid}")]
+async fn delete_pizza(
+    delete_pizza_url: Path<UpdatePizzaURL>,
+    db: Data<Database>,
+) -> Result<Json<Pizza>, PizzaError> {
+    let uuid = delete_pizza_url.into_inner().uuid;
+    let delete_result = db.delete_pizza(uuid).await;
+
+    match delete_result {
+        Some(delete_pizza) => Ok(Json(delete_pizza)),
+        None => Err(PizzaError::NoSuchPizzaFound),
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // enable logging
@@ -74,6 +88,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_pizzas)
             .service(buy_pizza)
             .service(update_pizza)
+            .service(delete_pizza)
     })
     .bind("127.0.0.1:8080")?
     .run()
